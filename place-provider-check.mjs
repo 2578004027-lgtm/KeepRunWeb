@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {searchPlaces,photonPlaces,nominatimPlaces} from './place-providers.mjs';
+const photon={type:'FeatureCollection',features:[{type:'Feature',properties:{name:'示例公园',city:'示例市',state:'示例省',extent:[116.13,39.67,116.15,39.66]},geometry:{type:'Point',coordinates:[116.14,39.665]}}]};
+const [place]=photonPlaces(photon);assert.equal(place.city,'示例市');assert.equal(place.lat,39.665);assert.deepEqual(place.bbox,[39.66,39.67,116.13,116.15]);
+const requests=[];
+const result=await searchPlaces('示例公园 示例市',{request:async url=>{requests.push(new URL(url));if(requests.length===1)throw new Error('Simulated upstream outage');return [{name:'示例公园',display_name:'示例公园, 示例市, 示例省',lat:'39.665',lon:'116.14'}];}});
+assert.equal(requests[0].hostname,'photon.komoot.io');assert.equal(requests[1].hostname,'nominatim.openstreetmap.org');assert.ok(requests.every(url=>url.searchParams.get('q')==='示例公园 示例市'));assert.equal(result[0].city,'示例市');assert.equal(result[0].geocoder,'Nominatim');
+let calls=0;assert.deepEqual(await searchPlaces('不存在',{request:async()=>{calls++;return {type:'FeatureCollection',features:[]};}}),[]);assert.equal(calls,1,'Valid empty results must not trigger another provider');
+assert.deepEqual(photonPlaces({...photon,features:[{...photon.features[0],geometry:{type:'Point',coordinates:[Infinity,100]}}]}),[]);
+assert.deepEqual(nominatimPlaces([{lat:'NaN',lon:'116'}]),[]);
+assert.deepEqual(nominatimPlaces([{lat:null,lon:116},{lat:'',lon:116}]),[]);
+await assert.rejects(()=>searchPlaces('示例市',{request:async()=>{throw new Error('offline')}}),/offline/);
+console.log('PASS geocoder normalization, fallback on outage, preserved Unicode query, valid empty result and invalid-coordinate rejection');

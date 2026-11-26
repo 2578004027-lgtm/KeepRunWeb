@@ -1,0 +1,37 @@
+import {createRequire} from 'node:module';
+import {spawn} from 'node:child_process';
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const root=path.dirname(fileURLToPath(import.meta.url)),out=path.join(root,'verification');await fs.mkdir(out,{recursive:true});
+const port=process.env.TEST_PORT||'18766',url=`http://127.0.0.1:${port}`;
+const server=spawn(process.execPath,['server.mjs'],{cwd:root,env:{...process.env,PORT:port},windowsHide:true,stdio:['ignore','pipe','pipe']});
+const serverReady=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Test server startup timed out')),10000);server.stdout.on('data',d=>{if(String(d).includes('Run Studio:')){clearTimeout(timer);resolve();}});server.on('error',reject);server.on('exit',code=>{if(code)reject(new Error('Test server exit '+code));});});
+let browser;const checks=[],errors=[];const check=(name,data={})=>{checks.push({name,...data});console.log('PASS',name,JSON.stringify(data));};
+try{
+ await serverReady;browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});
+ const page=await browser.newPage({viewport:{width:1450,height:1100},acceptDownloads:true});page.on('pageerror',e=>errors.push(e.message));
+ const ready=async()=>{await page.waitForFunction(()=>window.__studioReady||window.__studioError);assert.equal(await page.evaluate(()=>window.__studioError),null);};
+ const editorReady=()=>page.waitForFunction(()=>!document.querySelector('#route-apply').disabled);
+ await page.goto(url);await ready();const initial=await page.evaluate(()=>window.runStudio.getState());
+ assert.equal(initial.username,'示例跑者');assert.equal(initial.location,'示例城市');assert.equal(initial.sample,true);assert.equal(initial.route.embedded,false);assert.equal(initial.completion.device.source.originalTime,'09:41');assert.equal(initial.route.place,null);
+ assert.ok(initial.route.points.every(p=>p.lat===undefined&&p.lon===undefined));check('Default record and map use synthetic demo data without a real address');
+ await page.screenshot({path:path.join(out,'editor.png'),fullPage:true});
+ await page.locator('#quick-route-editor').click();await editorReady();assert.equal(await page.locator('#circle-mode').inputValue(),'smooth');
+ await page.locator('#circle-demo').click();await page.waitForFunction(()=>window.runStudio.routeEditor.getDraft().route.generated?.completeLaps>=1);await editorReady();
+ await page.locator('#route-apply').click();await ready();assert.equal(await page.evaluate(()=>window.runStudio.getState().distance),3.01);check('Circle generation and application work on the synthetic map');
+ await page.locator('#quick-appearance').click();await editorReady();
+ await page.locator('[data-route="opacity"]').evaluate(e=>{e.value='.4';e.dispatchEvent(new Event('input',{bubbles:true}));});await editorReady();
+ assert.equal(await page.evaluate(()=>window.runStudio.routeEditor.getDraft().route.opacity),.4);await page.locator('#route-apply').click();await ready();
+ await page.locator('#phone-appearance > summary').click();await page.locator('#phone-width').fill('1170');await page.locator('#phone-height').fill('2532');await page.locator('#apply-phone-size').click();await ready();
+ const pngEvent=page.waitForEvent('download');await page.locator('#export-png').click();await(await pngEvent).saveAs(path.join(out,'demo-export.png'));
+ const png=await fs.readFile(path.join(out,'demo-export.png'));assert.equal(png.readUInt32BE(16),1170);assert.equal(png.readUInt32BE(20),2532);check('Route customization and 1170 × 2532 PNG export work');
+ const event=page.waitForEvent('download');await page.locator('#save-json').click();const jsonPath=path.join(out,'demo-config.json');await(await event).saveAs(jsonPath);
+ const saved=JSON.parse(await fs.readFile(jsonPath,'utf8'));await page.locator('#reset').click();await ready();await page.locator('#json-file').setInputFiles(jsonPath);await ready();
+ const imported=await page.evaluate(()=>window.runStudio.getState());assert.equal(imported.username,'示例跑者');assert.equal(imported.exportWidth,1170);assert.deepEqual(imported.route,saved.route);check('JSON export and import retain the sanitized demo and edits');
+ await page.locator('#quick-route-editor').click();await editorReady();await page.locator('#circle-reference-place').click();await editorReady();assert.equal(await page.evaluate(()=>window.runStudio.routeEditor.getDraft().route.points.length),0);assert.equal(await page.evaluate(()=>window.runStudio.routeEditor.getDraft().route.mode),'image');await page.locator('#route-cancel').click();check('Demo reset uses a fictional map without fetching the original location');
+ await page.setViewportSize({width:390,height:844});await page.locator('#quick-appearance').click();await editorReady();assert.equal(await page.locator('#route-editor').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.locator('#route-editor').screenshot({path:path.join(out,'mobile.png')});check('Mobile editor fits 390px');
+ assert.deepEqual(errors,[]);await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify({status:'PASS',checks,errors},null,2));
+}finally{await browser?.close();server.kill();}

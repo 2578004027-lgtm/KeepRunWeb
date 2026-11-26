@@ -1,0 +1,19 @@
+{
+  "name": "run-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node model-check.mjs && node place-provider-check.mjs",
+    "test:browser": "node browser-check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  },
+  "description": "可自定义地图、路线和手机状态栏的跑步图片编辑器",
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "key": "devices-readme",
+    "url": "https://raw.githubusercontent.com/picturepan2/devices.css/master/README.md",
+    "bytes": 3500,
+    "sha256": "3a209a6c222fc97c08dc6af10ed1799da53e293a6207f7250c8e5cc5d7927339"
+  },
+  {
+    "key": "devices-license",
+    "url": "https://raw.githubusercontent.com/picturepan2/devices.css/master/LICENSE",
+    "bytes": 1064,
+    "sha256": "5a99ca58d0c68dd7b4df4ada6652c0bc00f430da0d13484d97d398fef2b002d8"
+  },
+  {
+    "key": "devices-css",
+    "url": "https://raw.githubusercontent.com/picturepan2/devices.css/master/dist/devices.css",
+    "bytes": 59293,
+    "sha256": "0780a1fc02288a46d684ee16e57145845a9edc2de9842548f409ae152d700e0f"
+  },
+  {
+    "key": "material-license",
+    "url": "https://raw.githubusercontent.com/google/material-design-icons/master/LICENSE",
+    "bytes": 11357,
+    "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+  },
+  {
+    "key": "wifi",
+    "url": "https://raw.githubusercontent.com/google/material-design-icons/master/src/device/signal_wifi_4_bar/materialicons/24px.svg",
+    "bytes": 229,
+    "sha256": "5bdea9fc41efe96f779544f4708126e49dc754f1fcb98e0ee8a1c2e931c615a2"
+  },
+  {
+    "key": "signal",
+    "url": "https://raw.githubusercontent.com/google/material-design-icons/master/src/device/signal_cellular_4_bar/materialicons/24px.svg",
+    "bytes": 149,
+    "sha256": "83a126cbf9af36ab25196e69cebdd037d11e2d97cf734dfc07a3961572c3020c"
+  },
+  {
+    "key": "bluetooth",
+    "url": "https://raw.githubusercontent.com/google/material-design-icons/master/src/device/bluetooth/materialicons/24px.svg",
+    "bytes": 313,
+    "sha256": "eebb4d73c5433705523c53c0c4c4353c1afe0f21b5d8d38cee9ef532d01db3be"
+  },
+  {
+    "key": "battery",
+    "url": "https://raw.githubusercontent.com/google/material-design-icons/master/src/device/battery_std/materialicons/24px.svg",
+    "bytes": 265,
+    "sha256": "67f427dbaca071849dda06cbc2088097e27cb37a105611455ff25869a9656307"
+  }
+]

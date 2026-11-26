@@ -1,0 +1,20 @@
+{
+  "source": "Keep APK assets/outdoor_map_style.json",
+  "colors": {
+    "fastPathColor": {
+      "r": 44,
+      "g": 226,
+      "b": 255
+    },
+    "normalPathColor": {
+      "r": 36,
+      "g": 199,
+      "b": 137
+    },
+    "slowPathColor": {
+      "r": 243,
+      "g": 82,
+      "b": 82
+    }
+  }
+}

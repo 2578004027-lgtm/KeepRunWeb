@@ -1,0 +1,35 @@
+import {KEEP_COLORS} from './route-style.mjs';
+import {getDevice,drawDeviceStatus,drawDeviceHome} from './devices.mjs';
+// Geometry measured from the supplied 1280 × 2772 Android screenshots.
+export const NATIVE={width:375,height:812.109375,headerY:129.19921875,mapY:253.125,mapHeight:281.25,rowY:497.16796875,gridTitleY:608,gridValueY:633.5,gridStep:59.2,lowerScroll:613.4765625};
+export function completionSize(s){return {width:375,height:s.completion.mode==='full'?1435:s.completion.height};}
+export function completionRouteRect(){return {x:0,y:NATIVE.mapY,w:375,h:NATIVE.mapHeight};}
+function label(c,t,x,y,size=13,color='#000',bold=false,width=1000){c.save();c.fillStyle=color;c.font=`${size}px ${bold?'KeepNativeBold':'Arial'}, "Microsoft YaHei", sans-serif`;c.textBaseline='alphabetic';const str=String(t??'');c.fillText(str,x,y,width);c.restore();}
+function box(c,x,y,w,h,r,color){c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
+function arrow(c,x,y,size=6){c.strokeStyle='#000';c.lineWidth=1.6;c.beginPath();c.moveTo(x-size/2,y-size);c.lineTo(x+size/2,y);c.lineTo(x-size/2,y+size);c.stroke();}
+function heading(c,t,y,detail=true){label(c,t,19,y,17,'#303030',true);if(detail){box(c,286,y-23,71,27,14,'#f8f8f8');label(c,'查看详情',296,y-5,12);}}
+async function sprite(load,n){return load('assets/'+n);}
+export async function renderCompletion(c,s,load,drawMap,size){
+ const n=s.completion;await document.fonts.load('64px KeepNativeBold');const names=['reference-status.png','reference-toolbar.png','reference-pb.png','reference-publish.png','reference-medal-pb.png','reference-medal-2.png','reference-ad.png','icon_share_run.png','reference-map-tools.png','reference-route-icon.png'];const images=await Promise.all(names.map(name=>sprite(load,name)));const [status,toolbar,pb,publish,pbMedal,medal,ad,run,mapTools,routeIcon]=images;
+ const device=getDevice(s),topShift=device.status-42.48,scroll=n.mode==='full'?0:n.scroll;c.fillStyle='#fff';c.fillRect(0,0,375,size.height);c.save();c.beginPath();c.rect(0,device.status+41.31,375,size.height-device.status-41.31);c.clip();c.translate(0,topShift-scroll);
+ // User information is actual editable text; only decorative assets are bitmaps.
+ if(s.style.personal){box(c,19,99,25,25,12,'#fafafa');if(s.style.avatar){const img=await load(s.style.avatar);c.save();c.beginPath();c.arc(31.5,111.5,12.5,0,Math.PI*2);c.clip();c.drawImage(img,19,99,25,25);c.restore();}else label(c,s.username.slice(0,1),23,115,15,'#ccc',true);label(c,s.username,53,108,14,'#000',false,304);const date=String(s.date).replace('T',' ').replaceAll('-','/');label(c,`${date} - ${n.endTime} ${s.location} · ${n.weather} · ${n.temperature}°C`,53,123,12,'#999',false,305);}
+ c.drawImage(run,22,NATIVE.headerY+23,18,20);label(c,s.title,46,NATIVE.headerY+34,17.2,'#3b3541',true);
+ c.save();c.font='64px KeepNativeBold';label(c,s.distance.toFixed(2),19,NATIVE.headerY+102.5,64,'#000',true);const distanceWidth=c.measureText(s.distance.toFixed(2)).width;c.restore();label(c,'公里',21+distanceWidth,NATIVE.headerY+102.5,16);
+ if(n.pb.show){c.drawImage(pb,243.46,NATIVE.headerY+20.215,116.016,67.676);if(n.pb.title!=='最大爬升高度'){c.fillStyle='#fff';c.fillRect(267,NATIVE.headerY+59,68,30);label(c,n.pb.title,272,NATIVE.headerY+70,8,'#d4b569',false,65);label(c,'新纪录',287,NATIVE.headerY+82,8,'#d4b569');}box(c,269.2,NATIVE.headerY+92,66.8,17.1,2,'#d9ac70');label(c,`成绩 ${n.pb.value} ${n.pb.unit}`,273,NATIVE.headerY+105,11,'#fff',false,61);}
+ const mapRect=completionRouteRect();const mapGeometry=await drawMap(c,s,mapRect,{},false);
+ // Native map tools and the slow/fast legend overlay the map, not the app chrome.
+ c.drawImage(mapTools,329.59,265.14,33.98,81.45);
+ label(c,'慢',15,487,10,'#d26e75');const grad=c.createLinearGradient(29,0,67,0);grad.addColorStop(0,s.route.slowColor||KEEP_COLORS.slow);grad.addColorStop(.5,s.route.normalColor||KEEP_COLORS.normal);grad.addColorStop(1,s.route.fastColor||KEEP_COLORS.fast);box(c,29,480,38,3.5,2,grad);label(c,'快',71,487,10,'#2ad0e0');
+ c.save();const fade=c.createLinearGradient(0,NATIVE.rowY-3,0,NATIVE.rowY+43);fade.addColorStop(0,'#ffffffed');fade.addColorStop(1,'#fff');box(c,0,NATIVE.rowY,375,47,0,fade);c.drawImage(routeIcon,17,NATIVE.rowY+10.84,23.44,18.16);label(c,`获得了 ${n.routeCount} 个跑步路线成绩`,50,NATIVE.rowY+25,14);arrow(c,356,NATIVE.rowY+19,5);c.restore();
+ heading(c,'运动数据',571.5);const metrics=s.metrics.filter(m=>m.visible!==false&&m.id!=='distance');const columns=s.columns;metrics.forEach((m,i)=>{const x=[19,155.5,286.5][i%columns]??19;const row=Math.floor(i/columns),ty=NATIVE.gridTitleY+row*NATIVE.gridStep,vy=NATIVE.gridValueY+row*NATIVE.gridStep;label(c,m.title,x,ty,13,'#999',false,125);label(c,m.valueStr,x,vy,22,'#000',true,127);if(m.unit){c.save();c.font='22px KeepNativeBold';const tw=c.measureText(String(m.valueStr)).width;c.restore();label(c,m.unit,x+tw+2,vy,11,'#000',false,38);}});
+ const dataEnd=Math.max(776,654+Math.ceil(metrics.length/columns)*NATIVE.gridStep-59.2);let y=dataEnd;
+ if(n.trend.show){box(c,0,y,375,11,0,'#fafafa');heading(c,'运动趋势',y+51);box(c,92,y+36,24,14,3,'#d9b475');label(c,'会员',96,y+46,8);label(c,`与上次 ${n.trend.previousDistance} 公里跑步各项数据对比`,19,y+88,13,'#999');[['▲ 上升','#8c6df3',n.trend.up],['▼ 下降','#21c397',n.trend.down],['━ 持平','#f6f6f6',n.trend.equal]].forEach(([t,color,count],i)=>{const x=[19,155.5,286.5][i];box(c,x,y+108,53,21,11,color);label(c,t,x+8,y+123,12,i===2?'#999':'#fff');label(c,count,x,y+153,22,'#000',true);label(c,'项',x+17,y+153,11);});y+=176;}
+ if(n.achievements.show){box(c,0,y,375,11,0,'#fafafa');label(c,'特别成就',19,y+48,18,'#303030',true);label(c,`(共 ${n.achievements.items.length} 个)`,94,y+48,13,'#aaa');n.achievements.items.forEach((item,i)=>{const iy=y+73+i*55;c.drawImage(item.kind==='pb'?pbMedal:medal,20,iy,39,40);label(c,item.label+' ›',69,iy+15,12,'#ccc');label(c,item.text,69,iy+36,15,'#000');});y+=187;}
+ if(n.ad.show){box(c,0,y,375,11,0,'#fafafa');label(c,n.ad.title,19,y+52,18,'#303030',true);c.strokeStyle='#ccc';c.lineWidth=.5;c.strokeRect(139,y+37,27,15);label(c,'广告',143,y+48,10,'#999');label(c,'×',349,y+44,22,'#ccc');label(c,n.ad.text,19,y+90,13,'#000',false,344);c.drawImage(ad,19,y+99,344,344*ad.height/ad.width);y+=260;}
+ c.restore();
+ // Fixed device toolbar remains in place while screenshot content scrolls.
+ c.fillStyle='#fff';c.fillRect(0,0,375,device.status+41.31);await drawDeviceStatus(c,s,status);c.drawImage(toolbar,0,device.status,375,41.31);if(!n.privacy){c.fillStyle='#fff';c.fillRect(218,45+topShift,72,36);}if(scroll>40){box(c,49,51+topShift,170,27,0,'#fff');box(c,52,57+topShift,17,17,8,'#fafafa');label(c,s.username.slice(0,1),56,70+topShift,10,'#ccc',true);label(c,s.username.length>13?s.username.slice(0,13)+'…':s.username,80,71+topShift,14,'#000',false,117);}
+ const h=size.height;const bottom=c.createLinearGradient(0,h-100,0,h);bottom.addColorStop(0,'#ffffff00');bottom.addColorStop(.4,'#ffffffaa');bottom.addColorStop(1,'#fff');box(c,0,h-100,375,100,0,bottom);c.drawImage(publish,45.41,h-device.footer-50.98,284.18,50.98);drawDeviceHome(c,s,h);
+ return {rect:mapRect,geometry:mapGeometry,contentHeight:y};
+}
