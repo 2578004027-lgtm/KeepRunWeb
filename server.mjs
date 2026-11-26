@@ -18,9 +18,9 @@ async function walkingXml(url){
   // urllib uses the Windows system proxy configuration. This optional path
   // helps on desktops where native Node fetch cannot reach the OSM endpoint.
   if(process.platform==='win32'){
-    try{const result=await runFile('python',['-X','utf8','-c',"import sys,urllib.request; r=urllib.request.urlopen(urllib.request.Request(sys.argv[1],headers={'User-Agent':'RunStudio local route editor'}),timeout=15); sys.stdout.buffer.write(r.read(5000001))",url],{windowsHide:true,timeout:18000,maxBuffer:5100000,encoding:'utf8'});return result.stdout;}catch{}
+    try{const result=await runFile('python',['-X','utf8','-c',"import sys,urllib.request; r=urllib.request.urlopen(urllib.request.Request(sys.argv[1],headers={'User-Agent':'KeepRunWeb local route editor'}),timeout=15); sys.stdout.buffer.write(r.read(5000001))",url],{windowsHide:true,timeout:18000,maxBuffer:5100000,encoding:'utf8'});return result.stdout;}catch{}
   }
-  const reply=await fetch(url,{headers:{'User-Agent':'RunStudio local route editor'},signal:AbortSignal.timeout(12000)});
+  const reply=await fetch(url,{headers:{'User-Agent':'KeepRunWeb local route editor'},signal:AbortSignal.timeout(12000)});
   if(!reply.ok)throw new Error('Walking network unavailable');return reply.text();
 }
 http.createServer(async (req,res) => {
@@ -78,4 +78,4 @@ http.createServer(async (req,res) => {
     res.writeHead(200, {'Content-Type':types[path.extname(target)] || 'application/octet-stream', 'Cache-Control':'no-cache'});
     res.end(data);
   } catch { res.writeHead(req.url.startsWith('/api/')?502:404);res.end(req.url.startsWith('/api/')?'Map data temporarily unavailable':'Not found'); }
-}).listen(port, '127.0.0.1', () => console.log(`Run Studio: http://127.0.0.1:${port}`));
+}).listen(port, '127.0.0.1', () => console.log(`KeepRunWeb: http://127.0.0.1:${port}`));

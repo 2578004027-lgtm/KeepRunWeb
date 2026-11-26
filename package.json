@@ -1,6 +1,6 @@
 {
-  "name": "run-studio",
-  "version": "1.0.0",
+  "name": "keep-run-web",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,8 +12,20 @@
   "devDependencies": {
     "playwright": "^1.56.1"
   },
-  "description": "可自定义地图、路线和手机状态栏的跑步图片编辑器",
+  "description": "Keep 风格跑步截图生成器：一笔画圈、地图自定义、状态栏适配与 PNG 导出。",
   "engines": {
     "node": ">=20"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/2578004027-lgtm/KeepRunWeb.git"
+  },
+  "keywords": [
+    "keep",
+    "running",
+    "screenshot-generator",
+    "route-editor",
+    "canvas",
+    "gpx"
+  ]
 }

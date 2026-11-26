@@ -8,7 +8,7 @@ const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAY
 const root=path.dirname(fileURLToPath(import.meta.url)),out=path.join(root,'verification');await fs.mkdir(out,{recursive:true});
 const port=process.env.TEST_PORT||'18766',url=`http://127.0.0.1:${port}`;
 const server=spawn(process.execPath,['server.mjs'],{cwd:root,env:{...process.env,PORT:port},windowsHide:true,stdio:['ignore','pipe','pipe']});
-const serverReady=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Test server startup timed out')),10000);server.stdout.on('data',d=>{if(String(d).includes('Run Studio:')){clearTimeout(timer);resolve();}});server.on('error',reject);server.on('exit',code=>{if(code)reject(new Error('Test server exit '+code));});});
+const serverReady=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Test server startup timed out')),10000);server.stdout.on('data',d=>{if(String(d).includes('KeepRunWeb:')){clearTimeout(timer);resolve();}});server.on('error',reject);server.on('exit',code=>{if(code)reject(new Error('Test server exit '+code));});});
 let browser;const checks=[],errors=[];const check=(name,data={})=>{checks.push({name,...data});console.log('PASS',name,JSON.stringify(data));};
 try{
  await serverReady;browser=await chromium.launch({headless:true,...(process.env.BROWSER_CHANNEL?{channel:process.env.BROWSER_CHANNEL}:{})});

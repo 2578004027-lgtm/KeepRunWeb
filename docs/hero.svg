@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f4faf7"/><stop offset="1" stop-color="#eeedf8"/></linearGradient><linearGradient id="route" x2="0" y2="1"><stop stop-color="#20c997"/><stop offset=".6" stop-color="#18bba0"/><stop offset="1" stop-color="#44d3dd"/></linearGradient></defs>
+<rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+<g fill="none" stroke="#fff" stroke-width="14"><path d="M850 0 820 360M1050 0 1210 360M770 58 1280 115M780 289 1280 263"/></g>
+<text x="65" y="77" fill="#5d7770" font-family="Arial,sans-serif" font-size="14" letter-spacing="3">DRAW · CUSTOMIZE · EXPORT</text>
+<text x="61" y="156" fill="#18372d" font-family="Arial,sans-serif" font-size="76" font-weight="700" letter-spacing="-3">KeepRunWeb</text>
+<text x="65" y="215" fill="#446257" font-family="Microsoft YaHei,Noto Sans SC,sans-serif" font-size="28">Keep 风格跑步截图生成器</text>
+<text x="65" y="263" fill="#75857d" font-family="Microsoft YaHei,Noto Sans SC,sans-serif" font-size="18">一笔画圈 · 状态栏适配 · 地图自定义 · 本地 PNG 导出</text>
+<rect x="65" y="289" width="260" height="30" rx="15" fill="#e0efe7"/><text x="83" y="309" fill="#3c7360" font-family="Arial,sans-serif" font-size="13">Browser UI / Node.js / Canvas</text>
+<g stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M973 53C900 54 915 115 898 167S901 272 949 290C1000 309 1069 282 1065 228L1051 132C1050 93 1028 51 973 53Z" stroke="#b5ded0" stroke-width="27"/><path d="M973 59C907 58 918 120 904 170S904 270 952 284C1003 302 1061 281 1059 227L1046 134C1046 91 1024 56 973 59Z" stroke="url(#route)" stroke-width="10"/><path d="M977 65C917 65 922 126 911 172S912 264 956 278C1002 291 1054 275 1052 223L1040 136C1039 94 1023 65 977 65Z" stroke="#25c494" stroke-opacity=".55" stroke-width="7"/></g>
+<circle cx="973" cy="59" r="13" fill="#20c997" stroke="#fff" stroke-width="5"/><circle cx="1052" cy="164" r="13" fill="#ff6875" stroke="#fff" stroke-width="5"/>
+</svg>
